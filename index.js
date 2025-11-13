@@ -1,70 +1,33 @@
-// === Minecraft AFK Bot ===
-// Created by Ass OP (YouTube: AAG OP) — Cleaned & optimized version by ChatGPT
-// Safe for Node v22 + Mineflayer v4.33.0+
+// Simple AFK bot — connects, stays still, no login commands, auto-reconnect
 
-const mineflayer = require('mineflayer')
+const mineflayer = require('mineflayer');
 
-function createBot() {
+function startBot() {
   const bot = mineflayer.createBot({
-    host: 'mc.leftypvp.net',   // 🌐 Server IP
-    port: 25565,               // 🔌 Server Port
-    username: 'Assassinplayz', // 🤖 Bot Username
-    version: '1.21.1'          // 🧩 Minecraft Version (use 1.21.4 for Mineflayer support)
-  })
+    host: 'AssassinPlayZ7-uhBP.aternos.me', // your server
+    port: 25565,
+    username: 'AssassinPlayZ',             // bot name
+    version: false                         // auto-detect fixes protocol mismatch
+  });
 
-  // === When Bot Spawns ===
   bot.once('spawn', () => {
-    console.log('✅ Bot has joined the server.')
+    console.log('✅ Bot joined the server.');
+    bot.clearControlStates(); // do NOT move
+    try { bot._client.socket.setKeepAlive(true); } catch (e) {}
+  });
 
-  setTimeout(() => {
-    bot.chat('/login Killeraddi1')
-    console.log('🔐 Login command sent.')
-  }, 1500)
+  bot.on('error', (err) => {
+    console.log('❌ Error:', err.message);
+  });
 
-  setTimeout(() => {
-    bot.chat('/is warp abhay6660 afk')
-    console.log('🚀 Warp command sent.')
-  }, 4000) // wait ~2.5s after login
-})
+  bot.on('kicked', (reason) => {
+    console.log('⚠️ Kicked:', reason);
+  });
 
-  // === AFK Movement System ===
-  // Keeps the bot moving so it doesn't get kicked for being idle
-  bot.on('physicTick', () => {
-    // This triggers every game tick (20x per second)
-    // To prevent constant spam of movement, we use timed toggles.
-    const time = Date.now() % 10000 // loop every 10s
-
-    if (time < 1000) bot.setControlState('jump', true)
-    else bot.setControlState('jump', false)
-
-    if (time >= 1000 && time < 2000) bot.setControlState('forward', true)
-    else bot.setControlState('forward', false)
-
-    if (time >= 2000 && time < 3000) bot.setControlState('back', true)
-    else bot.setControlState('back', false)
-
-    if (time >= 3000 && time < 4000) bot.setControlState('right', true)
-    else bot.setControlState('right', false)
-
-    if (time >= 4000 && time < 5000) bot.setControlState('left', true)
-    else bot.setControlState('left', false)
-  })
-
-  // === Error Handling ===
-  bot.on('kicked', reason => {
-    console.log('⚠️ Bot was kicked:', reason)
-  })
-
-  bot.on('error', err => {
-    console.error('❌ Bot error:', err.message)
-  })
-
-  // === Auto Reconnect ===
   bot.on('end', () => {
-    console.log('🔄 Bot disconnected. Reconnecting in 5 seconds...')
-    setTimeout(createBot, 5000)
-  })
+    console.log('🔄 Disconnected. Reconnecting in 5 seconds...');
+    setTimeout(startBot, 5000);
+  });
 }
 
-// === Start the Bot ===
-createBot()
+startBot();
