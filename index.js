@@ -5,7 +5,7 @@ function startBot() {
     host: 'AssassinPlayZ7-uhBP.aternos.me', // your server
     port: 25565,
     username: 'AssassinPlayZ',             // bot name
-    version: false                         // auto-detect server version
+    version: 1.21.1                      // auto-detect server version
   })
 
   bot.once('spawn', () => {
